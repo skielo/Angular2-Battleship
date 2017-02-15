@@ -1,5 +1,5 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { DatabaseService, Battle, Board, Item } from '../core/database.service';
+import { DatabaseService, Battle, Board, BoardItem } from '../core/database.service';
 
 @Component({
     moduleId: module.id,

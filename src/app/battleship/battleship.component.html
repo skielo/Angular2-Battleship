@@ -1,17 +1,24 @@
-<div class="flex-container" fxLayout="row" fxLayout.xs="column" fxLayoutAlign="center center" fxLayoutAlign.xs="start start" *ngIf="!_battleOnGoing">
-    <div class="flex-item">
-        <span>Create a new battle</span><button (click)="createBattle()">Create</button>  
+<div class="flex-container" fxLayout="column" fxLayoutAlign="center center">
+    <div class="flex-container" fxLayout="row" fxLayoutAlign="center left" *ngIf="!_battleOnGoing">
+        <div class="flex-item" fxFlex="50">
+            <span>Create a new battle </span><button (click)="createBattle()" md-button>Create</button>  
+        </div>
+        <div class="flex-item" fxFlex="50">
+            <span>Join a battle</span>
+        </div>
     </div>
-    <div class="flex-item">
-        <span>Join a battle</span>
-    </div>
-</div> 
-<div class="flex-container" fxLayout="row" fxLayout.xs="column" fxLayoutAlign="center center" fxLayoutAlign.xs="start start" *ngIf="_battleOnGoing">
-    <div class="flex-item">
-        <p>my battle</p>
-        <board [(_board)]="_hostBoard"></board>
-    </div>
-    <div class="flex-item">
-        <board [(_board)]="_opponentBoard" ></board>
+    <div class="flex-container" fxLayout="row" fxLayoutAlign="center center" *ngIf="_battleOnGoing">
+        <div class="flex-item" fxFlex="50">
+            <md-card>
+                <board [(_board)]="_hostBoard"></board>
+                <span>End battle </span><button (click)="endBattle()" md-button>End</button>
+            </md-card>
+        </div>
+        <div class="flex-item" fxFlex="50">
+            <md-card>
+                <board [(_board)]="_opponentBoard" ></board>
+                <span>Status:</span>
+            </md-card>
+        </div>
     </div>
 </div> 

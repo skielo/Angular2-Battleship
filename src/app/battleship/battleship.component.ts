@@ -1,5 +1,5 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { DatabaseService, Battle, Board, Item } from '../core/database.service';
+import { DatabaseService, Battle, Board, BoardItem } from '../core/database.service';
 import { AngularFire, FirebaseObjectObservable } from 'angularfire2';
 
 @Component({
@@ -12,8 +12,8 @@ export class BattleshipComponent implements OnInit {
     @Input() battleUid: string;
     
     _battle: Battle;
-    _hostBoard: Board = new Board("");
-    _opponentBoard: Board = new Board("");
+    _hostBoard: Board = new Board();
+    _opponentBoard: Board = new Board();
     _battleOnGoing: boolean = false;
 
     ngOnInit() {
@@ -30,8 +30,8 @@ export class BattleshipComponent implements OnInit {
 
     createBattle(){
         let battle = new Battle();
-        battle.hostBoard = new Board('local user');
-        battle.opponentBoard = new Board('remote user');
+        battle.hostBoard = new Board();
+        battle.opponentBoard = new Board();
         this._db.createBattle(battle)
         .then(response => { 
             this.battleUid = response.key;
@@ -39,14 +39,20 @@ export class BattleshipComponent implements OnInit {
             .subscribe(
                 // it worked
                 (battle) => {
-                    this._battleOnGoing = true;
                     this._battle = battle as Battle;
                     this._hostBoard = this._battle.hostBoard;
                     this._opponentBoard = this._battle.opponentBoard;
+                    this._battleOnGoing = true;
                 },
                 // error
                 (err) => { console.log(err); }
             );
         });
+    }
+
+    endBattle(){
+        this._battle.isOpen = false;
+        this._battleOnGoing = false;
+        this._db.updateBattleByUid(this.battleUid, this._battle);
     }
 }

@@ -12,6 +12,19 @@ export class DatabaseService {
         return this._af.database.list('/battles').push(obj);
     }
 
+    getOpenBattles(){
+        return this._af.database.list('/battles', {
+                                    query: {
+                                        orderByChild: 'isOpen',
+                                        equalTo: 'true' 
+                                    }
+                                })
+                                .catch((err: any) => {
+                                    console.log(err); // again, customize me please
+                                    return Promise.reject(err);
+                                });
+    }
+
     getBattleByUid(uid: string){
         return this._af.database.object('/battles/' + uid)
                                 .catch((err: any) => {
@@ -27,33 +40,42 @@ export class DatabaseService {
                                     return Promise.reject(err);
                                 });
     }
+
+    updateBattleByUid(uid: string, obj: Battle){
+        this._af.database.object('/battles/' + uid).update(obj)
+                                .catch((err: any) => {
+                                    console.log(err); // again, customize me please
+                                });
+    }
 }
 
 export class Battle{
     hostBoard: Board;
     opponentBoard: Board;
-    isOpen: boolean;
+    isOpen: boolean = true;
+    winnerName: string = "";
+    winnerUid: string = "";
 }
 export class Board{
-    constructor(username: string){
+    constructor(){
         this.matrix = [];
 
         for(var i: number = 0; i < 10; i++) {
             this.matrix[i] = [];
             for(var j: number = 0; j< 10; j++) {
-                this.matrix[i][j] = new Item();
+                this.matrix[i][j] = new BoardItem();
             }
         }
-        this.username = username;
     }
-    matrix: Item[][];
-    username: string;
+    matrix: BoardItem[][];
+    username: string = "";
+    userUid: string = "";
 }
-export class Item{
-    constructor() {
-        this.attacked = false;
-        this.hasboat = false;        
-    }
-    hasboat: boolean;
-    attacked: boolean;
+export class BoardItem{
+    hasboat: boolean = false;
+    attacked: boolean = false;
+}
+export class Boat{
+    locations: number[] = [0,0,0];
+    hits: string[] = ["","",""];
 }

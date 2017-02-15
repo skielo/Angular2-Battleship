@@ -1,8 +1,17 @@
-<div>
-    <span>Create a new battle</span><button (click)="createBattle()">Create</button>
-</div>
-<div *ngIf="_battleOnGoing">
-    <p>my battle</p>
-    <board [(_board)]="_hostBoard"></board>
-    <board [(_board)]="_opponentBoard" ></board>
-</div>
+<div class="flex-container" fxLayout="row" fxLayout.xs="column" fxLayoutAlign="center center" fxLayoutAlign.xs="start start" *ngIf="!_battleOnGoing">
+    <div class="flex-item">
+        <span>Create a new battle</span><button (click)="createBattle()">Create</button>  
+    </div>
+    <div class="flex-item">
+        <span>Join a battle</span>
+    </div>
+</div> 
+<div class="flex-container" fxLayout="row" fxLayout.xs="column" fxLayoutAlign="center center" fxLayoutAlign.xs="start start" *ngIf="_battleOnGoing">
+    <div class="flex-item">
+        <p>my battle</p>
+        <board [(_board)]="_hostBoard"></board>
+    </div>
+    <div class="flex-item">
+        <board [(_board)]="_opponentBoard" ></board>
+    </div>
+</div> 

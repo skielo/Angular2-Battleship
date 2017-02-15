@@ -3,6 +3,7 @@ import { BrowserModule } from '@angular/platform-browser';
 
 import { AppComponent }  from './app.component';
 import { AngularFireModule } from 'angularfire2';
+import { MaterialModule } from '@angular/material';
 
 import { BattleshipComponent, BoardComponent } from './battleship/index';
 
@@ -15,7 +16,7 @@ export const firebaseConfig = {
 };
 
 @NgModule({
-  imports:      [ BrowserModule, AngularFireModule.initializeApp(firebaseConfig) ],
+  imports:      [ BrowserModule, AngularFireModule.initializeApp(firebaseConfig), MaterialModule.forRoot()],
   declarations: [ AppComponent, BattleshipComponent, BoardComponent ],
   bootstrap:    [ AppComponent ]
 })

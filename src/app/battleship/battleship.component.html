@@ -1,0 +1,8 @@
+<div>
+    <span>Create a new battle</span><button (click)="createBattle()">Create</button>
+</div>
+<div *ngIf="_battleOnGoing">
+    <p>my battle</p>
+    <board [(_board)]="_hostBoard"></board>
+    <board [(_board)]="_opponentBoard" ></board>
+</div>

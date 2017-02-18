@@ -1,15 +1,20 @@
 import { Injectable } from '@angular/core';
 import { Http, Response } from '@angular/http';
 import { Observable } from 'rxjs/Rx';
-import { AngularFire, FirebaseListObservable } from 'angularfire2';
+import { AngularFire, FirebaseObjectObservable, AngularFireAuth } from 'angularfire2';
 
 @Injectable()
 export class DatabaseService {
 
     constructor(private _af: AngularFire) { }
 
+    auth(): AngularFireAuth{
+        return this._af.auth;
+    }
+
     createBattle(obj: Battle){
         return this._af.database.list('/battles').push(obj);
+        
     }
 
     getOpenBattles(){
@@ -18,10 +23,6 @@ export class DatabaseService {
                                         orderByChild: 'isOpen',
                                         equalTo: 'true' 
                                     }
-                                })
-                                .catch((err: any) => {
-                                    console.log(err); // again, customize me please
-                                    return Promise.reject(err);
                                 });
     }
 
@@ -42,40 +43,53 @@ export class DatabaseService {
     }
 
     updateBattleByUid(uid: string, obj: Battle){
-        this._af.database.object('/battles/' + uid).update(obj)
-                                .catch((err: any) => {
-                                    console.log(err); // again, customize me please
-                                });
+        return this._af.database.list('/battles').update(uid, obj)
+                                        .catch((err: any) => {
+                                            console.log(err); // again, customize me please
+                                        });
     }
 }
 
 export class Battle{
-    hostBoard: Board;
-    opponentBoard: Board;
+    hostBoats: Boat[] = new Array<Boat>();
+    opponentBoats: Boat[] = new Array<Boat>();
     isOpen: boolean = true;
-    winnerName: string = "";
-    winnerUid: string = "";
+    owner: User;
+    opponent: User;
+    winner: User;
+    shipLength: number = 3;
+    isLocal: boolean = false;
 }
 export class Board{
     constructor(){
         this.matrix = [];
 
-        for(var i: number = 0; i < 10; i++) {
+        for(var i: number = 0; i < 7; i++) {
             this.matrix[i] = [];
-            for(var j: number = 0; j< 10; j++) {
+            for(var j: number = 0; j< 7; j++) {
                 this.matrix[i][j] = new BoardItem();
             }
         }
     }
-    matrix: BoardItem[][];
+    matrix: any[];
     username: string = "";
     userUid: string = "";
+    guesses: number = 0;
 }
 export class BoardItem{
     hasboat: boolean = false;
     attacked: boolean = false;
+    position: string;
 }
 export class Boat{
-    locations: number[] = [0,0,0];
+    locations: string[] = ["0","0","0"];
     hits: string[] = ["","",""];
+}
+export class User{
+    constructor(_name: string, _uid: string) {
+        this.name = _name;
+        this.uid = _uid;
+    }
+    name: string = "";
+    uid: string = "";
 }

@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { DatabaseService, Battle, Board, BoardItem } from './core/database.service';
+import { DatabaseService } from './core/database.service';
 
 @Component({
   moduleId: module.id,
@@ -8,5 +8,5 @@ import { DatabaseService, Battle, Board, BoardItem } from './core/database.servi
   providers: [DatabaseService]
 })
 export class AppComponent  { 
-  name = 'guess'; 
+
 }

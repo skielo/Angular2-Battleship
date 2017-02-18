@@ -1,24 +1,42 @@
-<div class="flex-container" fxLayout="column" fxLayoutAlign="center center">
-    <div class="flex-container" fxLayout="row" fxLayoutAlign="center left" *ngIf="!_battleOnGoing">
-        <div class="flex-item" fxFlex="50">
-            <span>Create a new battle </span><button (click)="createBattle()" md-button>Create</button>  
-        </div>
-        <div class="flex-item" fxFlex="50">
-            <span>Join a battle</span>
-        </div>
+<md-sidenav-layout [class.m2app-dark]="true">
+  <md-toolbar color="primary">
+    <div [@moveInLeft]="state">
+        <h3>Hey {{ user.auth.email }}! welcome to battleship</h3>      
     </div>
-    <div class="flex-container" fxLayout="row" fxLayoutAlign="center center" *ngIf="_battleOnGoing">
-        <div class="flex-item" fxFlex="50">
-            <md-card>
-                <board [(_board)]="_hostBoard"></board>
-                <span>End battle </span><button (click)="endBattle()" md-button>End</button>
-            </md-card>
-        </div>
-        <div class="flex-item" fxFlex="50">
-            <md-card>
-                <board [(_board)]="_opponentBoard" ></board>
-                <span>Status:</span>
-            </md-card>
-        </div>
+    <div [@fallIn]="state">
+        <button (click)="logout()" class="basic-btn">Logout</button>
     </div>
-</div> 
+  </md-toolbar>
+  <div class="app-content">
+    <div class="flex-container" fxLayout="column" fxLayoutAlign="center center">
+        <div class="flex-container" fxLayout="row" fxLayoutAlign="center left" *ngIf="!_battleOnGoing">
+            <div class="flex-item" fxFlex="50">
+                <span>Host a new battle </span><button (click)="hostBattle()" md-button>Create</button>  <br/>
+                <span>Play with AI </span><button (click)="createBattle()" md-button>Create</button>  
+            </div>
+            <div class="flex-item" fxFlex="50">
+                <span>Join a battle</span>
+                <ul>
+                    <li *ngFor="let battle of _onGoingBattles | async">
+                        {{"id: " + battle.$key + ", owner: " + battle.ownerName}}
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="flex-container" fxLayout="row" fxLayoutAlign="center center" *ngIf="_battleOnGoing">
+            <div class="flex-item" fxFlex="50" *ngIf="_hostedBattle">
+                <md-card>
+                    <board [(_battle)]="_battle" [_isLocal]="true" [_battleUid]="_battleUid"></board>
+                    <span>End battle </span><button (click)="endBattle()" md-button>End</button>
+                </md-card>
+            </div>
+            <div class="flex-item" fxFlex="50">
+                <md-card>
+                    <board [(_battle)]="_battle" [_isLocal]="false" [_battleUid]="_battleUid"></board>
+                    <span>Status:</span>
+                </md-card>
+            </div>
+        </div>
+    </div> 
+  </div>
+</md-sidenav-layout>

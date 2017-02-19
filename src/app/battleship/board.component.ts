@@ -1,5 +1,6 @@
-import { Component, OnInit, Input } from '@angular/core';
-import { DatabaseService, Battle, Board, BoardItem, Boat } from '../core/database.service';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { DatabaseService, Battle, Board, BoardItem, Boat, User } from '../core/database.service';
+import { AngularFire, FirebaseObjectObservable, FirebaseListObservable, FirebaseAuthState } from 'angularfire2';
 
 @Component({
     moduleId: module.id,
@@ -9,20 +10,22 @@ import { DatabaseService, Battle, Board, BoardItem, Boat } from '../core/databas
 })
 export class BoardComponent implements OnInit {
     _board: Board = new Board();
-    _message: string;
-    @Input() _battle: Battle;
-    @Input() _isLocal: boolean;
-    @Input() _battleUid: string;
+    _loggedInUser: FirebaseAuthState;
+    @Input() _ships: Boat[];
+    @Input() _user: User;
+    @Output() boardUpdated: EventEmitter<string> = new EventEmitter();
 
-    constructor(private _db: DatabaseService) { }
+    constructor(private _db: DatabaseService) { 
+        this._db.auth().subscribe(auth => {
+            if(auth) {
+                this._loggedInUser = auth;
+            }
+        });
+    }
 
     ngOnInit() { 
-        if(this._isLocal){
-            this.initBoard(this._battle.hostBoats);
-        }
-        else{
-            this.initBoard(this._battle.opponentBoats);
-        }
+        this.initBoard(this._ships);
+        this._board.user = this._user;
     }
 
     fire(col: BoardItem){
@@ -31,35 +34,7 @@ export class BoardComponent implements OnInit {
         let index: number = 0;
         this._board.guesses = this._board.guesses + 1;
         if(col.hasboat ){
-            if(this._isLocal){
-                ship = this.findShip(this._battle.hostBoats, col.position);
-            }
-            else {
-                ship = this.findShip(this._battle.opponentBoats, col.position);
-            }
-            index = ship.locations.indexOf(col.position);
-            ship.hits[index] = "hit";
-            if(this.isSunk(ship)){
-                this._message = "You sank my battleship!";
-            }
-            if(this._isLocal){
-                if(this.isMatchOver(this._battle.hostBoats)){
-                    this._message = "Congratulations " + this._battle.opponent.name + "has won this battle.";
-                    this._battle.winner = this._battle.opponent;
-                    this._battle.isOpen = false;
-                }
-            }
-            else {
-                if(this.isMatchOver(this._battle.opponentBoats)){
-                    this._message = "Congratulations " + this._battle.owner.name + "has won this battle.";
-                    this._battle.winner = this._battle.owner;
-                    this._battle.isOpen = false;
-                }
-            }
-            this._db.updateBattleByUid(this._battleUid, this._battle)
-            .then(response => {
-                console.log(response);
-            });
+            this.boardUpdated.emit(col.position);
         }
     }
 
@@ -68,31 +43,9 @@ export class BoardComponent implements OnInit {
             ship.locations.forEach(position => {
                 this._board.matrix[position[0]][position[1]].hasboat = true;
                 this._board.matrix[position[0]][position[1]].position = position;
-                if(this._isLocal){
+                if(this._loggedInUser.uid == this._user.uid)
                     this._board.matrix[position[0]][position[1]].attacked = true;
-                }
             });
         });
-    }
-
-    findShip(ships: Boat[], boardLocation: string): Boat{
-        return ships.find((ship: Boat) => {
-            return ship.locations.find(position => { return position == boardLocation; }) != null;
-        });
-    }
-
-    isMatchOver(ships: Boat[]): boolean{
-        return ships.every(ship => {
-                    return this.isSunk(ship);
-                });
-    }
-
-    isSunk(ship: Boat): boolean{
-        let retval: boolean = true;
-        ship.hits.forEach(attacked => {
-            if(attacked != "hit")
-                retval = false;
-        });
-        return retval;
     }
 }

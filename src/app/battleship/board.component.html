@@ -1,19 +1,11 @@
-<p>board: {{_board.username}}</p>
+<div>
+  <label>board: {{(_board.user)?.name}}</label>
+  <label>Number of guesses: {{_board.guesses}}</label>
+</div>
 <div id="board">
-  <div>
-    <span>{{_message}}</span>
-    <span>Number of guesses: {{_board.guesses}}</span>
-  </div>
   <table>
     <tr *ngFor="let row of _board.matrix">
-      <td (click)="!_isLocal && fire(col)" [class.disabled]="_isLocal" [ngClass]="{'miss': (col.attacked && !col.hasboat), 'hit': (col.attacked && col.hasboat) }" *ngFor="let col of row"></td>
+      <td (click)="(_loggedInUser.uid != _user.uid) && fire(col)" [ngClass]="{'miss': (col.attacked && !col.hasboat), 'hit': (col.attacked && col.hasboat) }" *ngFor="let col of row"></td>
     </tr>
   </table>
-  <!--
-  <div>
-      <span>Ships possitions:</span><br/>
-      <span *ngFor="let ship of _battle.hostBoats">
-        <span>ship: </span><span *ngFor="let possition of ship.locations"> {{ possition + ', '}}</span>
-      </span>
-  </div>-->
 </div>

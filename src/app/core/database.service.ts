@@ -21,7 +21,7 @@ export class DatabaseService {
         return this._af.database.list('/battles', {
                                     query: {
                                         orderByChild: 'isOpen',
-                                        equalTo: 'true' 
+                                        equalTo: true 
                                     }
                                 });
     }
@@ -32,6 +32,19 @@ export class DatabaseService {
                                     console.log(err); // again, customize me please
                                     return Promise.reject(err);
                                 });
+    }
+
+    getBattleByUidPromise(uid: string){
+        return this._af.database.object('/battles/' + uid)
+                                .toPromise()
+                                .catch((err: any) => {
+                                    console.log(err); // again, customize me please
+                                    return Promise.reject(err);
+                                });
+    }
+
+    getTurn(uid:string){
+        return this._af.database.object('/battles/' + uid + "turn");
     }
 
     getBoard(uid: string, type: string) {
@@ -54,11 +67,12 @@ export class Battle{
     hostBoats: Boat[] = new Array<Boat>();
     opponentBoats: Boat[] = new Array<Boat>();
     isOpen: boolean = true;
-    owner: User;
-    opponent: User;
+    owner: User = new User("","");
+    opponent: User = new User("","");
     winner: User;
     shipLength: number = 3;
     isLocal: boolean = false;
+    turn: string = "";
 }
 export class Board{
     constructor(){
@@ -72,8 +86,7 @@ export class Board{
         }
     }
     matrix: any[];
-    username: string = "";
-    userUid: string = "";
+    user: User;
     guesses: number = 0;
 }
 export class BoardItem{

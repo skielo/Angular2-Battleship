@@ -2,39 +2,51 @@
   <md-toolbar color="primary">
     <div [@moveInLeft]="state">
         <h3>Hey {{ user.auth.email }}! welcome to battleship</h3>      
-    </div>
+    </div><br />
     <div [@fallIn]="state">
         <button (click)="logout()" class="basic-btn">Logout</button>
     </div>
   </md-toolbar>
   <div class="app-content">
     <div class="flex-container" fxLayout="column" fxLayoutAlign="center center">
-        <div class="flex-container" fxLayout="row" fxLayoutAlign="center left" *ngIf="!_battleOnGoing">
-            <div class="flex-item" fxFlex="50">
-                <span>Host a new battle </span><button (click)="hostBattle()" md-button>Create</button>  <br/>
-                <span>Play with AI </span><button (click)="createBattle()" md-button>Create</button>  
+        <div class="flex-container" fxLayout="row" fxLayoutAlign="center center" *ngIf="!_battleOnGoing">
+            <div class="flex-item" >
+                <label>
+                    Host a new battle 
+                    <button (click)="hostBattle()" md-button>Create</button>
+                </label>  <br/>
+                <label>
+                    Play with AI 
+                    <button (click)="createBattle()" md-button>Create</button>  
+                </label>
             </div>
-            <div class="flex-item" fxFlex="50">
-                <span>Join a battle</span>
-                <ul>
-                    <li *ngFor="let battle of _onGoingBattles | async">
-                        {{"id: " + battle.$key + ", owner: " + battle.ownerName}}
-                    </li>
-                </ul>
+            <div class="flex-item" >
+                <label>Join a battle</label>
+                <md-list class="app-list">
+                    <md-list-item *ngFor="let battle of _onGoingBattles | async">
+                    <h3 md-line>{{battle.$key}}</h3>
+                    <p md-line class="demo-secondary-text">{{battle.owner.name}}</p>
+                    </md-list-item>
+                </md-list>
             </div>
         </div>
-        <div class="flex-container" fxLayout="row" fxLayoutAlign="center center" *ngIf="_battleOnGoing">
-            <div class="flex-item" fxFlex="50" *ngIf="_hostedBattle">
-                <md-card>
-                    <board [(_battle)]="_battle" [_isLocal]="true" [_battleUid]="_battleUid"></board>
-                    <span>End battle </span><button (click)="endBattle()" md-button>End</button>
-                </md-card>
+        <div class="flex-container" fxLayout="column" fxLayoutAlign="center center" *ngIf="_battleOnGoing">
+            <div class="flex-container" fxLayout="column" fxLayoutAlign="center center">
+                <label>{{_message}}</label>
             </div>
-            <div class="flex-item" fxFlex="50">
-                <md-card>
-                    <board [(_battle)]="_battle" [_isLocal]="false" [_battleUid]="_battleUid"></board>
-                    <span>Status:</span>
-                </md-card>
+            <div class="flex-container" fxLayout="row" fxLayoutAlign="center center">
+                <div class="flex-item" *ngIf="_hostedBattle">
+                    <md-card>
+                        <board [_ships]="_battle.hostBoats" [_user]="_battle.owner" (boardUpdated)="handleFire($event)"></board>
+                        <label>Widraw battle </label><button (click)="endBattle()" md-button>End</button>
+                    </md-card>
+                </div>
+                <div class="flex-item">
+                    <md-card>
+                        <board [_ships]="_battle.opponentBoats" [_user]="_battle.opponent" (boardUpdated)="handleOponentFire($event)"></board>
+                        <label>Status:</label>
+                    </md-card>
+                </div>
             </div>
         </div>
     </div> 

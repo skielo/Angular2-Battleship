@@ -28,6 +28,7 @@ export class BattleshipComponent implements OnInit {
     _battleUid: string = "";
     _hostedBattle: boolean = false;
     _onGoingBattles: FirebaseListObservable<Battle[]>;
+    _message: string = "";
     user: FirebaseAuthState;
 
     ngOnInit() {   
@@ -51,6 +52,7 @@ export class BattleshipComponent implements OnInit {
         this._battle = new Battle();
         this._battle.owner = new User(this.user.auth.displayName?this.user.auth.displayName : this.user.auth.email, this.user.uid);
         this._battle.isLocal = true;
+        this._battle.turn = this.user.uid;
         this.generateShipLocations(this._battle.opponentBoats, this._battle);
         this._db.createBattle(this._battle)
         .then(response => { 
@@ -62,6 +64,7 @@ export class BattleshipComponent implements OnInit {
     endBattle(){
         this._battle.isOpen = false;
         this._battleOnGoing = false;
+        this._battle.winner = this._battle.owner.name == this.user.auth.displayName || this._battle.owner.name == this.user.auth.email ? this._battle.opponent : this._battle.owner;
         this._db.updateBattleByUid(this._battleUid, this._battle);
     }
 
@@ -103,14 +106,70 @@ export class BattleshipComponent implements OnInit {
 	}
 
 	collision(locations: string[], ships: Boat[]) {
+        let retval: boolean = false;
         ships.forEach(ship => {
-            locations.forEach(loc => {
-                if(ship.locations.indexOf(loc) >= 0) 
-                    return true;               
+            ship.locations.forEach(loc => {
+                if(locations.indexOf(loc) >= 0) 
+                    retval = true;               
             });
         });
-		return false;
+		return retval;
 	}
+
+    handleHostFire(position:string){
+        this._message = "";
+        let ship = this.findShip(this._battle.hostBoats, position);
+        this.hitShip(position, ship);
+        if(this.isSunk(ship)){
+            this._message = "You sank my battleship!";
+        }
+        if(this.isMatchOver(this._battle.hostBoats)){
+            this._message = "Congratulations " + this._battle.opponent.name + " has won this battle.";
+            this._battle.winner = this._battle.opponent;
+            this._battle.isOpen = false;
+        }
+    }
+
+    handleOponentFire(position:string){
+        this._message = "";
+        let ship = this.findShip(this._battle.opponentBoats, position);
+        this.hitShip(position, ship);
+        if(this.isSunk(ship)){
+            this._message = "You sank my battleship!";
+        }
+        if(this.isMatchOver(this._battle.opponentBoats)){
+            this._message = "Congratulations " + this._battle.owner.name + " has won this battle.";
+            this._battle.winner = this._battle.owner;
+            this._battle.isOpen = false;
+        }
+        this._db.updateBattleByUid(this._battleUid, this._battle)
+    }
+
+    hitShip(position: string, ship: Boat){
+        let index = ship.locations.indexOf(position);
+        ship.hits[index] = "hit";
+    }
+
+    findShip(ships: Boat[], boardLocation: string): Boat{
+        return ships.find((ship: Boat) => {
+            return ship.locations.find(position => { return position == boardLocation; }) != null;
+        });
+    }
+
+    isMatchOver(ships: Boat[]): boolean{
+        return ships.every(ship => {
+                    return this.isSunk(ship);
+                });
+    }
+
+    isSunk(ship: Boat): boolean{
+        let retval: boolean = true;
+        ship.hits.forEach(attacked => {
+            if(attacked != "hit")
+                retval = false;
+        });
+        return retval;
+    }
 
     logout() {
         this._db.auth().logout();

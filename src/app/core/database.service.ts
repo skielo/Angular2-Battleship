@@ -78,7 +78,7 @@ export class Board{
         for(var i: number = 0; i < 7; i++) {
             this.matrix[i] = [];
             for(var j: number = 0; j< 7; j++) {
-                this.matrix[i][j] = new BoardItem();
+                this.matrix[i][j] = new BoardItem(i+""+j);
             }
         }
     }
@@ -87,6 +87,9 @@ export class Board{
     guesses: number = 0;
 }
 export class BoardItem{
+    constructor(pos: string) {
+        this.position = pos;
+    }
     hasboat: boolean = false;
     attacked: boolean = false;
     position: string;

@@ -33,9 +33,7 @@ export class BoardComponent implements OnInit {
         let ship: Boat = new Boat();
         let index: number = 0;
         this._board.guesses = this._board.guesses + 1;
-        if(col.hasboat ){
-            this.boardUpdated.emit(col.position);
-        }
+        this.boardUpdated.emit(col.position);
     }
 
     initBoard(ships: Boat[]){

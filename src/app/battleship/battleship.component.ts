@@ -71,6 +71,18 @@ export class BattleshipComponent implements OnInit {
         .then(response => { 
             this._battleUid = response.key;
             this._battleOnGoing = true;
+            this._liveBattle = this._db.getBattleByUid(this._battleUid);
+            this._liveBattle.subscribe((snap) => {
+                this._battle.hostBoats = snap.hostBoats;
+                this._battle.opponentBoats = snap.opponentBoats;
+                this._battle.turn = snap.turn;
+                if(this._battle.turn == this.user.uid){
+                    this._message = "Its your turn.";
+                }
+                else{
+                    this._message = "Waiting for your opponent.";
+                }
+            }, (error) => console.log(error));
         });
     }
 
@@ -172,7 +184,11 @@ export class BattleshipComponent implements OnInit {
             this._battle.isOpen = false;
             this._battle.turn = "";
         }
-        this._liveBattle.update({ hostBoats: this._battle.hostBoats, winner:this._battle.winner ? this._battle.winner: new User("",""), isOpen:this._battle.isOpen, turn: this._battle.turn, opponent: this._battle.opponent});
+        this._liveBattle.update({ hostBoats: this._battle.hostBoats, 
+            winner:this._battle.winner ? this._battle.winner: new User("",""), 
+            isOpen:this._battle.isOpen, 
+            turn: this._battle.turn, 
+            opponent: this._battle.opponent});
     }
 
     handleOponentFire(position:string){
@@ -184,7 +200,7 @@ export class BattleshipComponent implements OnInit {
                 this._message = "You sank my battleship!";
             }
         }
-        this._battle.turn = this._battle.opponent.uid;
+        this._battle.turn = this._battle.opponent?this._battle.opponent.uid: this._battle.owner.uid;
         this._battle.owner.guesses.push(position);
         if(this.isMatchOver(this._battle.opponentBoats)){
             this._message = "Congratulations " + this._battle.owner.name + " has won this battle.";
@@ -192,7 +208,11 @@ export class BattleshipComponent implements OnInit {
             this._battle.isOpen = false;
             this._battle.turn = "";
         }
-        this._liveBattle.update({ hostBoats: this._battle.hostBoats, winner:this._battle.winner, isOpen:this._battle.isOpen, turn: this._battle.turn, owner: this._battle.owner});
+        this._liveBattle.update({ opponentBoats: this._battle.opponentBoats, 
+            winner:this._battle.winner ? this._battle.winner: new User("",""),  
+            isOpen:this._battle.isOpen, 
+            turn: this._battle.turn, 
+            owner: this._battle.owner});
     }
 
     hitShip(position: string, ship: Boat){

@@ -24,9 +24,11 @@
                 <label>Join a battle</label>
                 <md-list class="app-list">
                     <md-list-item *ngFor="let battle of _onGoingBattles | async">
-                    <h3 md-line>{{battle.$key}}</h3>
-                    <p md-line class="demo-secondary-text">{{battle.owner.name}}</p>
-                    </md-list-item>
+                        <a (click)="joinBattle(battle.$key, battle)">
+                            <h3 md-line>{{battle.$key}}</h3>
+                            <p md-line class="demo-secondary-text">{{battle.owner.name}}</p>
+                        </a>
+                    </md-list-item>                   
                 </md-list>
             </div>
         </div>
@@ -37,15 +39,15 @@
             <div class="flex-container" fxLayout="row" fxLayoutAlign="center center">
                 <div class="flex-item" *ngIf="_hostedBattle">
                     <md-card>
-                        <board [_ships]="_battle.hostBoats" [_user]="_battle.owner" (boardUpdated)="handleFire($event)"></board>
-                        <label>Widraw battle </label><button (click)="endBattle()" md-button>End</button>
+                        <board [_ships]="_battle.hostBoats" [_user]="_battle.owner" (boardUpdated)="handleHostFire($event)"></board>
                     </md-card>
+                    <label>Widraw battle </label><button (click)="endBattle()" md-button>End</button>
                 </div>
                 <div class="flex-item">
                     <md-card>
                         <board [_ships]="_battle.opponentBoats" [_user]="_battle.opponent" (boardUpdated)="handleOponentFire($event)"></board>
-                        <label>Status:</label>
                     </md-card>
+                    <label>Status:{{ _battle.opponent.uid == "" ? "waiting for opponent" : "opponent" + _battle.opponent.name +" online" }}</label>
                 </div>
             </div>
         </div>

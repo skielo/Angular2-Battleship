@@ -17,21 +17,18 @@ export class DatabaseService {
         
     }
 
-    getOpenBattles(){
+    getOpenBattles(pageNo: number){
         return this._af.database.list('/battles', {
                                     query: {
                                         orderByChild: 'isOpen',
-                                        equalTo: true 
+                                        equalTo: true,
+                                        limitToFirst: (pageNo * 10)
                                     }
                                 });
     }
 
-    getBattleByUid(uid: string){
-        return this._af.database.object('/battles/' + uid)
-                                .catch((err: any) => {
-                                    console.log(err); // again, customize me please
-                                    return Promise.reject(err);
-                                });
+    getBattleByUid(uid: string): FirebaseObjectObservable<Battle>{
+        return this._af.database.object('/battles/' + uid);
     }
 
     getBattleByUidPromise(uid: string){
@@ -105,4 +102,5 @@ export class User{
     }
     name: string = "";
     uid: string = "";
+    guesses: string[] = new Array<string>();
 }

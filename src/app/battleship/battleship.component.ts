@@ -29,10 +29,11 @@ export class BattleshipComponent implements OnInit {
     _hostedBattle: boolean = false;
     _onGoingBattles: FirebaseListObservable<Battle[]>;
     _message: string = "";
+    _liveBattle: FirebaseObjectObservable<Battle>;
     user: FirebaseAuthState;
 
     ngOnInit() {   
-        this._onGoingBattles = this._db.getOpenBattles();
+        this._onGoingBattles = this._db.getOpenBattles(1);
     }
 
     hostBattle(){
@@ -45,6 +46,18 @@ export class BattleshipComponent implements OnInit {
             this._battleUid = response.key;
             this._battleOnGoing = true;
             this._hostedBattle = true;
+            this._liveBattle = this._db.getBattleByUid(this._battleUid);
+            this._liveBattle.subscribe((snap) => {
+                this._battle.hostBoats = snap.hostBoats;
+                this._battle.opponentBoats = snap.opponentBoats;
+                this._battle.turn = snap.turn;
+                if(this._battle.turn == this.user.uid){
+                    this._message = "Its your turn.";
+                }
+                else{
+                    this._message = "Waiting for your opponent.";
+                }
+            }, (error) => console.log(error));
         });
     }
 
@@ -59,6 +72,32 @@ export class BattleshipComponent implements OnInit {
             this._battleUid = response.key;
             this._battleOnGoing = true;
         });
+    }
+
+    joinBattle(battleUid: string, battle: Battle){
+        this._battleUid = battleUid;
+        this._liveBattle = this._db.getBattleByUid(battleUid);
+        this._battle = new Battle();
+        this._battle.hostBoats = battle.hostBoats;
+        this._battle.opponentBoats = battle.opponentBoats;
+        this._battle.owner = battle.owner;
+        this._battle.shipLength = battle.shipLength;
+        this._battle.opponent = new User(this.user.auth.displayName?this.user.auth.displayName : this.user.auth.email, this.user.uid);
+        this._battle.turn = this.user.uid;
+        this._hostedBattle = true;
+        this._db.updateBattleByUid(this._battleUid, this._battle);
+        this._liveBattle.subscribe((snap) => {
+            this._battle.opponentBoats = snap.opponentBoats;
+            this._battle.hostBoats = snap.hostBoats;
+            this._battle.turn = snap.turn;
+            if(this._battle.turn == this.user.uid){
+                this._message = "Its your turn.";
+            }
+            else{
+                this._message = "Waiting for your opponent.";
+            }
+        }, (error) => console.log(error));
+        this._battleOnGoing = true;
     }
 
     endBattle(){
@@ -119,30 +158,41 @@ export class BattleshipComponent implements OnInit {
     handleHostFire(position:string){
         this._message = "";
         let ship = this.findShip(this._battle.hostBoats, position);
-        this.hitShip(position, ship);
-        if(this.isSunk(ship)){
-            this._message = "You sank my battleship!";
+        if(ship){
+            this.hitShip(position, ship);
+            if(this.isSunk(ship)){
+                this._message = "You sank my battleship!";
+            }
         }
+        this._battle.turn = this._battle.owner.uid;
+        this._battle.opponent.guesses.push(position);
         if(this.isMatchOver(this._battle.hostBoats)){
             this._message = "Congratulations " + this._battle.opponent.name + " has won this battle.";
             this._battle.winner = this._battle.opponent;
             this._battle.isOpen = false;
+            this._battle.turn = "";
         }
+        this._liveBattle.update({ hostBoats: this._battle.hostBoats, winner:this._battle.winner ? this._battle.winner: new User("",""), isOpen:this._battle.isOpen, turn: this._battle.turn, opponent: this._battle.opponent});
     }
 
     handleOponentFire(position:string){
         this._message = "";
         let ship = this.findShip(this._battle.opponentBoats, position);
-        this.hitShip(position, ship);
-        if(this.isSunk(ship)){
-            this._message = "You sank my battleship!";
+        if(ship){
+            this.hitShip(position, ship);
+            if(this.isSunk(ship)){
+                this._message = "You sank my battleship!";
+            }
         }
+        this._battle.turn = this._battle.opponent.uid;
+        this._battle.owner.guesses.push(position);
         if(this.isMatchOver(this._battle.opponentBoats)){
             this._message = "Congratulations " + this._battle.owner.name + " has won this battle.";
             this._battle.winner = this._battle.owner;
             this._battle.isOpen = false;
+            this._battle.turn = "";
         }
-        this._db.updateBattleByUid(this._battleUid, this._battle)
+        this._liveBattle.update({ hostBoats: this._battle.hostBoats, winner:this._battle.winner, isOpen:this._battle.isOpen, turn: this._battle.turn, owner: this._battle.owner});
     }
 
     hitShip(position: string, ship: Boat){

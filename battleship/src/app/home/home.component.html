@@ -1,0 +1,12 @@
+<!--The content below is only a placeholder and can be replaced.-->
+<div style="text-align:center">
+  <h1>
+    Welcome to Battleship game!
+  </h1>
+  <img width="300" src="../assets/hqdefault.jpg">
+</div>
+<div>
+  <p>{{message}}</p>
+</div>
+<button md-button (click)="startGame()" *ngIf="!gameStarted">Play</button>
+<app-battleship *ngIf="gameStarted"></app-battleship>

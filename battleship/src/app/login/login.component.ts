@@ -1,5 +1,5 @@
 import { Component, OnInit, HostBinding } from '@angular/core';
-import { AngularFire, AuthProviders, AuthMethods } from 'angularfire2';
+import { AngularFireAuth } from "angularfire2/auth";
 import { DatabaseService } from '../core/database.service';
 import { Router } from '@angular/router';
 import { moveIn } from '../router.animations';
@@ -18,9 +18,9 @@ export class LoginComponent implements OnInit {
     
     constructor(private _db: DatabaseService,private router: Router) {
 
-      this._db.auth().subscribe(auth => { 
+      this._db.auth().authState.subscribe(auth => { 
                         if(auth) {
-                            this.router.navigateByUrl('/battleship');
+                            this.router.navigateByUrl('/home');
                         }
                     });
     }

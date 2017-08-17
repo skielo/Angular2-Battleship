@@ -1,23 +1,23 @@
 #lock {
-    width:40%;
+    width:10%;
     margin: 1.5em auto 4em auto;
     display:block;
 }
 
 #fb {
-    background:#3B5998 url('content/facebook.svg') no-repeat 14px 6px;
+    background:#3B5998 url('../../assets/facebook.svg') no-repeat 14px 6px;
     background-size: 47px;
     color:#fff;
 }
 
 #google {
     border: 1px solid #95989A;
-    background: #fff  url('content/google.svg') no-repeat 25px;
+    background: #fff  url('../../assets/google.svg') no-repeat 25px;
     background-size: 25px;
 }
 
 #email {
-    background: #ECECEC  url('content/email.svg') no-repeat 25px;
+    background: #ECECEC  url('../../assets/email.svg') no-repeat 25px;
     background-size: 25px;
 }
 

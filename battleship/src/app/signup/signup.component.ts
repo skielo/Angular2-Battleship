@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { AngularFire, AuthProviders, AuthMethods } from 'angularfire2';
+import { AngularFireAuth } from "angularfire2/auth";
 import { DatabaseService } from '../core/database.service';
 import { Router } from '@angular/router';
 import { moveIn, fallIn } from '../router.animations';
@@ -24,10 +24,8 @@ export class SignupComponent implements OnInit {
 
     onSubmit(formData: any) {
         if(formData.valid) {
-            this._db.auth().createUser({
-                            email: formData.value.email,
-                            password: formData.value.password
-                        }).then((success) => {
+            this._db.auth().auth.createUserWithEmailAndPassword(formData.value.email, formData.value.password)
+                        .then((success) => {
                             this.router.navigate(['/login'])
                         }).catch((err) => {
                             this.error = err;

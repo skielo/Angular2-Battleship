@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { AngularFire, AuthProviders, AuthMethods } from 'angularfire2';
+import { AngularFireAuth } from "angularfire2/auth";
 import { DatabaseService } from '../core/database.service';
 import { Router } from '@angular/router';
 import { moveIn, fallIn } from '../router.animations';
@@ -17,7 +17,7 @@ export class EmailComponent implements OnInit {
     error: any;
 
     constructor(private _db: DatabaseService,private router: Router) {
-        this._db.auth().subscribe(auth => { 
+        this._db.auth().authState.subscribe(auth => { 
             if(auth) {
                 this.router.navigateByUrl('/battleship');
             }
@@ -28,13 +28,7 @@ export class EmailComponent implements OnInit {
 
     onSubmit(formData: any) {
         if(formData.valid) {
-            this._db.auth().login({
-                email: formData.value.email,
-                password: formData.value.password
-            },{
-                provider: AuthProviders.Password,
-                method: AuthMethods.Password,
-            })
+            this._db.auth().auth.signInWithEmailAndPassword(formData.value.email,formData.value.password)
             .then((success) => {
                 this.router.navigate(['/battleship']);
             })

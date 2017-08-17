@@ -1,24 +1,25 @@
 import { Injectable } from '@angular/core';
 import { Http, Response } from '@angular/http';
 import { Observable } from 'rxjs/Rx';
-import { AngularFire, FirebaseObjectObservable, AngularFireAuth } from 'angularfire2';
+import { AngularFireAuth } from "angularfire2/auth";
+import { AngularFireDatabase, FirebaseObjectObservable, FirebaseListObservable } from "angularfire2/database";
 
 @Injectable()
 export class DatabaseService {
 
-    constructor(private _af: AngularFire) { }
+    constructor(private _af: AngularFireDatabase, public _auth: AngularFireAuth) { }
 
     auth(): AngularFireAuth{
-        return this._af.auth;
+        return this._auth;
     }
 
     createBattle(obj: Battle){
-        return this._af.database.list('/battles').push(obj);
+        return this._af.list('/battles').push(obj);
         
     }
 
     getOpenBattles(pageNo: number){
-        return this._af.database.list('/battles', {
+        return this._af.list('/battles', {
                                     query: {
                                         orderByChild: 'isOpen',
                                         equalTo: true,
@@ -28,11 +29,11 @@ export class DatabaseService {
     }
 
     getBattleByUid(uid: string): FirebaseObjectObservable<Battle>{
-        return this._af.database.object('/battles/' + uid);
+        return this._af.object('/battles/' + uid);
     }
 
     getBattleByUidPromise(uid: string){
-        return this._af.database.object('/battles/' + uid)
+        return this._af.object('/battles/' + uid)
                                 .toPromise()
                                 .catch((err: any) => {
                                     console.log(err); // again, customize me please
@@ -41,11 +42,11 @@ export class DatabaseService {
     }
 
     getTurn(uid:string){
-        return this._af.database.object('/battles/' + uid + "turn");
+        return this._af.object('/battles/' + uid + "turn");
     }
 
     getBoard(uid: string, type: string) {
-        return this._af.database.object('/battles/' + uid + '/' + type)
+        return this._af.object('/battles/' + uid + '/' + type)
                                 .catch((err: any) => {
                                     console.log(err); // again, customize me please
                                     return Promise.reject(err);
@@ -53,10 +54,24 @@ export class DatabaseService {
     }
 
     updateBattleByUid(uid: string, obj: Battle){
-        return this._af.database.list('/battles').update(uid, obj)
+        return this._af.list('/battles').update(uid, obj)
                                         .catch((err: any) => {
                                             console.log(err); // again, customize me please
                                         });
+    }
+
+    startGame() {
+        this._af.list(`commands/${this._auth.auth.currentUser.uid}`).push(new Command("play"));
+    }
+
+    getGameState() {
+        return this._af.object(`player_states/${this._auth.auth.currentUser.uid}`);
+    }
+
+    fire(position: string) {
+        let command = new Command("move");
+        command.data.push({ position: position});
+        this._af.list(`commands/${this._auth.auth.currentUser.uid}`).push(command);
     }
 }
 
@@ -83,7 +98,6 @@ export class Board{
         }
     }
     matrix: any[];
-    user: User;
     guesses: number = 0;
 }
 export class BoardItem{
@@ -106,4 +120,12 @@ export class User{
     name: string = "";
     uid: string = "";
     guesses: string[] = new Array<string>();
+}
+export class Command {
+    constructor(_command: string) {
+        this.command = _command;
+        this.data = [];
+    }
+    command: string = "";
+    data: Array<any>;
 }

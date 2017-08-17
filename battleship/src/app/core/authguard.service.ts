@@ -1,5 +1,5 @@
 import { CanActivate, Router } from '@angular/router';
-import { AngularFireAuth } from "angularfire2/angularfire2";
+import { AngularFireAuth } from "angularfire2/auth";
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs/Rx";
 import 'rxjs/add/operator/do';
@@ -11,7 +11,7 @@ export class AuthGuardService {
     constructor(private auth: AngularFireAuth, private router: Router) {}
 
     canActivate(): Observable<boolean> {
-      return Observable.from(this.auth)
+      return Observable.from(this.auth.authState)
         .take(1)
         .map(state => !!state)
         .do(authenticated => {

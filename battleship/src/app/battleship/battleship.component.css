@@ -7,11 +7,11 @@ div#board {
 	background-size: 300px 300px;
 }
 .hit {
-	/*background: url("content/ship.png") no-repeat center center;*/
+	background: url("../../assets/ship.png") no-repeat center center;
 	background-size: 15px 15px;
 }
 .miss {
-	/*background: url("content/miss.png") no-repeat center center;*/
+	background: url("../../assets/miss.png") no-repeat center center;
 	background-size: 15px 15px;
 }
 table {

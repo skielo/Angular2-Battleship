@@ -12,6 +12,7 @@ export class HomeComponent implements OnInit {
   gameState: FirebaseObjectObservable<any>;
   message: string;
   gameStarted: boolean = false;
+  gameId: any = "";
   
   constructor(private _db: DatabaseService) {
     this.gameState = this._db.getGameState();
@@ -23,6 +24,7 @@ export class HomeComponent implements OnInit {
         if(snap.message){
           this.message = snap.message;
           this.gameStarted = true; 
+          this.gameId = snap.game;
         }
       }
     });

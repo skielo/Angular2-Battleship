@@ -253,6 +253,18 @@ function checkAndApplyMove(root, uid, game_state, position) {
 
     const p1uid = game_state.p1uid
     const p2uid = game_state.p2uid
+    let shoot = {
+        hasboat: false,
+        attacked: true,
+        position: position
+    };
+
+    if(!game_state[`${game_state.p1uid}_attemps`]){
+        game_state[`${game_state.p1uid}_attemps`] = [];
+    }
+    if(!game_state[`${game_state.p2uid}_attemps`]){
+        game_state[`${game_state.p2uid}_attemps`] = [];
+    }
 
     let pl_ships,pl_num;
     if (uid === p1uid) {
@@ -272,24 +284,22 @@ function checkAndApplyMove(root, uid, game_state, position) {
     if (uid !== game_state.turn) {
         throw new Error("It's not your turn. Be patient!")
     }
-    console.log("ships 1: ", pl_ships);
-    console.log("position: ", position);
+
     let ship = findShip(pl_ships, position);
     if(ship){
         let index = pl_ships.indexOf(ship);
         pl_ships[index] = hitShip(position, ship);
         if (pl_num == 1) {
             game_state.p1ships = pl_ships;
-            console.log("ships: ", game_state.p1ships);
         }
         else if (pl_num == 2) {
             game_state.p2ships = pl_ships;
-            console.log("ships: ", game_state.p2ships);
         }
         
         if(isSunk(ship)){
             game_state.message = "You sank my battleship!";
         }
+        shoot.hasboat = true;
     }
     
     if(isMatchOver(pl_ships)){
@@ -304,7 +314,22 @@ function checkAndApplyMove(root, uid, game_state, position) {
         // Other player's turn now
         game_state.turn = pl_num == 1 ? p2uid : p1uid
     }
-    
+ 
+    if (pl_num == 1) {
+        if(game_state[`${game_state.p1uid}_attemps`].find(attemp => { 
+            return attemp.position == position; 
+        }) == null){
+            game_state[`${game_state.p1uid}_attemps`].push(shoot); 
+        }
+    }
+    else if (pl_num == 2) {
+        if(game_state[`${game_state.p2uid}_attemps`].find(attemp => { 
+            return attemp.position == position; 
+        }) == null){
+            game_state[`${game_state.p2uid}_attemps`].push(shoot); 
+        }
+    }
+
     return game_state
 }
 

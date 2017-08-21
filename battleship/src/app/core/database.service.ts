@@ -68,6 +68,10 @@ export class DatabaseService {
         return this._af.object(`player_states/${this._auth.auth.currentUser.uid}`);
     }
 
+    getLocalGame(game_id: string){
+        return this._af.list(`games/${game_id}/${this._auth.auth.currentUser.uid}_attemps`);
+    }
+
     fire(position: string) {
         let command = new Command("move");
         command.data.push({ position: position});

@@ -3,9 +3,8 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { AngularFireModule } from 'angularfire2';
-import { MaterialModule } from '@angular/material';
 import { FlexLayoutModule } from "@angular/flex-layout";
-import { MdButtonModule, MdCardModule, MdMenuModule, MdToolbarModule, MdIconModule, MdListModule } from '@angular/material';
+import { MatButtonModule, MatCardModule, MatMenuModule, MatToolbarModule, MatIconModule, MatListModule } from '@angular/material';
 
 import { AppComponent } from './app.component';
 import { EmailComponent, LoginComponent, SignupComponent } from './login/index';
@@ -35,15 +34,14 @@ export const firebaseConfig = {
     BrowserAnimationsModule,
     FormsModule,
     AngularFireModule.initializeApp(firebaseConfig), 
-    MaterialModule,
     FlexLayoutModule,
     routes,
-    MdButtonModule, 
-    MdCardModule, 
-    MdMenuModule, 
-    MdToolbarModule, 
-    MdIconModule,
-    MdListModule
+    MatButtonModule, 
+    MatCardModule, 
+    MatMenuModule, 
+    MatToolbarModule, 
+    MatIconModule, 
+    MatListModule 
   ],
   providers: [AuthGuardService, AngularFireDatabase, AngularFireAuth],
   bootstrap:    [ AppComponent ]

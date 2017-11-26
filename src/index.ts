@@ -7,10 +7,9 @@ export let command = functions.database.ref('/commands/{uid}/{cmd_id}').onWrite(
     const uid = event.params.uid
     const cmd_id = event.params.cmd_id
     let bs = new BattleshipServer()
-
-    if (! event.data.exists()) {
-        console.log(`command was deleted ${cmd_id}`)
-        return;
+    console.log("data: ", event.data)
+    if (!event.data.exists()) {
+        return Promise.reject(`command was deleted ${cmd_id}`)
     }
 
     const command = event.data.val()
@@ -199,9 +198,9 @@ export class BattleshipServer {
             else if (!committed) {
                 console.log("Not committed, move error")
                 console.log(move_error)
-                return {
+                return root.child(`player_states/${uid}`).update({
                     message: move_error.message
-                }
+                })
             }
             else {
                 console.log("Committed move")
@@ -215,9 +214,7 @@ export class BattleshipServer {
                 return this.notifyPlayers(root, uid, result.snapshot.val(), result.snapshot.key)
             }
             else {
-                return root.child(`player_states/${uid}`).update({
-                    message: result.message
-                })
+                return console.log('transac not commited: ', result);
             }
         })
     }
@@ -275,6 +272,9 @@ export class BattleshipServer {
             game_state.message = "You sank my battleship!";
         }
             shoot.hasboat = true;
+        }
+        else {
+            game_state.message = "";
         }
     
         if(this.isMatchOver(pl_ships)){

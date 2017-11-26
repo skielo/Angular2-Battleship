@@ -2,7 +2,8 @@ import { Injectable } from '@angular/core';
 import { Http, Response } from '@angular/http';
 import { Observable } from 'rxjs/Rx';
 import { AngularFireAuth } from "angularfire2/auth";
-import { AngularFireDatabase, FirebaseObjectObservable, FirebaseListObservable } from "angularfire2/database";
+import { AngularFireDatabase, AngularFireObject, AngularFireList, DatabaseQuery } from "angularfire2/database";
+import { Query } from '@angular/core/src/metadata/di';
 
 @Injectable()
 export class DatabaseService {
@@ -19,21 +20,16 @@ export class DatabaseService {
     }
 
     getOpenBattles(pageNo: number){
-        return this._af.list('/battles', {
-                                    query: {
-                                        orderByChild: 'isOpen',
-                                        equalTo: true,
-                                        limitToFirst: (pageNo * 10)
-                                    }
-                                });
+        return this._af.list('/battles', ref => ref.orderByChild('isOpen').equalTo(true).limitToFirst(pageNo * 10));
     }
 
-    getBattleByUid(uid: string): FirebaseObjectObservable<Battle>{
+    getBattleByUid(uid: string): AngularFireObject<Battle>{
         return this._af.object('/battles/' + uid);
     }
 
     getBattleByUidPromise(uid: string){
         return this._af.object('/battles/' + uid)
+                                .snapshotChanges()
                                 .toPromise()
                                 .catch((err: any) => {
                                     console.log(err); // again, customize me please
@@ -47,6 +43,7 @@ export class DatabaseService {
 
     getBoard(uid: string, type: string) {
         return this._af.object('/battles/' + uid + '/' + type)
+                                .snapshotChanges()
                                 .catch((err: any) => {
                                     console.log(err); // again, customize me please
                                     return Promise.reject(err);

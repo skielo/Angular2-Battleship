@@ -6,9 +6,9 @@ exports.command = functions.database.ref('/commands/{uid}/{cmd_id}').onWrite(fun
     var uid = event.params.uid;
     var cmd_id = event.params.cmd_id;
     var bs = new BattleshipServer();
+    console.log("data: ", event.data);
     if (!event.data.exists()) {
-        console.log("command was deleted " + cmd_id);
-        return;
+        return Promise.reject("command was deleted " + cmd_id);
     }
     var command = event.data.val();
     var cmd_name = command.command;
@@ -187,9 +187,9 @@ var BattleshipServer = (function () {
             else if (!committed) {
                 console.log("Not committed, move error");
                 console.log(move_error);
-                return {
+                return root.child("player_states/" + uid).update({
                     message: move_error.message
-                };
+                });
             }
             else {
                 console.log("Committed move");
@@ -203,9 +203,7 @@ var BattleshipServer = (function () {
                 return _this.notifyPlayers(root, uid, result.snapshot.val(), result.snapshot.key);
             }
             else {
-                return root.child("player_states/" + uid).update({
-                    message: result.message
-                });
+                return console.log('transac not commited: ', result);
             }
         });
     };
@@ -256,6 +254,9 @@ var BattleshipServer = (function () {
                 game_state.message = "You sank my battleship!";
             }
             shoot.hasboat = true;
+        }
+        else {
+            game_state.message = "";
         }
         if (this.isMatchOver(pl_ships)) {
             if (pl_num == 1) {

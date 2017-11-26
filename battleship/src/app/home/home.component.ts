@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FirebaseObjectObservable } from "angularfire2/database";
+import { AngularFireObject } from "angularfire2/database";
 import { DatabaseService } from "../core/database.service";
 
 @Component({
@@ -9,7 +9,7 @@ import { DatabaseService } from "../core/database.service";
 })
 export class HomeComponent implements OnInit {
 
-  gameState: FirebaseObjectObservable<any>;
+  gameState: AngularFireObject<any>;
   message: string;
   gameStarted: boolean = false;
   gameId: any = "";
@@ -19,12 +19,12 @@ export class HomeComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.gameState.subscribe(snap => {
-      if(snap.$exists()){
-        if(snap.message){
-          this.message = snap.message;
+    this.gameState.snapshotChanges().subscribe(snap => {
+      if(snap.payload.exists()){
+        if(snap.payload.val().message){
+          this.message = snap.payload.val().message;
           this.gameStarted = true; 
-          this.gameId = snap.game;
+          this.gameId = snap.payload.val().game;
         }
       }
     });

@@ -24,6 +24,7 @@ export class BattleshipComponent implements OnInit {
   initBoard(game_id){
     if(game_id != ""){
       this._db.getLocalGame(game_id).snapshotChanges().subscribe(snap => {
+        this._board.guesses = snap.length;
         snap.forEach(attemp => {
           this._board.matrix[attemp.payload.val().position[0]][attemp.payload.val().position[1]].hasboat = attemp.payload.val().hasboat;
           this._board.matrix[attemp.payload.val().position[0]][attemp.payload.val().position[1]].position = attemp.payload.val().position;
@@ -34,7 +35,7 @@ export class BattleshipComponent implements OnInit {
   }
 
   fire(col: BoardItem){
-      this._board.guesses = this._board.guesses + 1;
+      //this._board.guesses = this._board.guesses + 1;
       this._db.fire(col.position);
   }
 }

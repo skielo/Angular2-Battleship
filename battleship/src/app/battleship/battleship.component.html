@@ -1,0 +1,10 @@
+<div>
+    <label>Number of guesses: {{_board.guesses}}</label>
+</div>
+<div id="board">
+    <table>
+        <tr *ngFor="let row of _board.matrix">
+            <td (click)="fire(col)" *ngFor="let col of row" [ngClass]="{'miss': (col.attacked && !col.hasboat), 'hit': (col.attacked && col.hasboat) }"></td>
+        </tr>
+    </table>
+</div>

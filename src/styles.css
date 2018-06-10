@@ -1,7 +1,0 @@
-@import 'node_modules/@angular/material/core/theming/prebuilt/purple-green.css';
-
-.spacer {
-    -webkit-box-flex: 1;
-    -ms-flex: 1 1 auto;
-    flex: 1 1 auto;
-}

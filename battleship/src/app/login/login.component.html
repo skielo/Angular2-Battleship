@@ -1,0 +1,8 @@
+
+<mat-list>
+  <mat-list-item><img src="../assets/lock.svg" id="lock"><br><span class="error" *ngIf="error">{{ error }}</span></mat-list-item>
+  <mat-list-item> <button mat-button (click)="loginFb() && false" id="fb" [class.disabled]="true">Login With Facebook</button> </mat-list-item>
+  <mat-list-item> <button mat-button (click)="loginGoogle() && false" id="google" [class.disabled]="true">Login With Google</button> </mat-list-item>
+  <mat-list-item> <button mat-button routerLink="/login-email" id="email">Email</button> </mat-list-item>
+  <mat-list-item> <a routerLink="/signup" routerLinkActive="active" class="alc">No account? <strong>Create one here</strong></a> </mat-list-item>
+ </mat-list>

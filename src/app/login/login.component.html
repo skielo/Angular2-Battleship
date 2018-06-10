@@ -1,8 +1,0 @@
-<div class="form-container">
-  <img src="content/lock.svg" id="lock">
-  <span class="error" *ngIf="error">{{ error }}</span>
-  <button (click)="loginFb() && false" id="fb" [class.disabled]="true">Login With Facebook</button><br>
-  <button (click)="loginGoogle() && false" id="google" [class.disabled]="true">Login With Google</button>
-  <button routerLink="/login-email" id="email">Email</button>
-  <a routerLink="/signup" routerLinkActive="active" class="alc">No account? <strong>Create one here</strong></a>
-</div>

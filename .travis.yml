@@ -1,20 +1,18 @@
-dist: trusty
-sudo: required
 language: node_js
 node_js:
-  - "5"
-os:
-  - linux
-env:
-  global:
-    - DBUS_SESSION_BUS_ADDRESS=/dev/null
-    - DISPLAY=:99.0
-    - CHROME_BIN=chromium-browser
+  - "6.9"
+branches:
+  only:
+    - master
 before_script:
-  - sh -e /etc/init.d/xvfb start
-install:
-  - npm install
+  - npm install -g firebase-tools
+  - npm install -g @angular/cli
 script:
-  - npm run lint
-  - npm run test:once
-  - npm run e2e
+  - tsc
+  - cd ./battleship && npm run buildDeploy
+after_success:
+  - firebase deploy --token $FIREBASE_TOKEN
+notifications:
+  email:
+    on_failure: change
+    on_success: change

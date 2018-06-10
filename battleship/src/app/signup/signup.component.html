@@ -3,8 +3,8 @@
   <h2>Join now</h2>
   <span class="error" *ngIf="error" [@fallIn]='state'>{{ error }}</span>
   <form #formData='ngForm' (ngSubmit)="onSubmit(formData)">
-    <input type="text" placeholder="Email address.." (ngModel)="email" name="email" class="txt" required>
-    <input type="password" placeholder="Password" (ngModel)="password" name="password" class="txt" required>
+    <input type="text" placeholder="Email address.." (ngModel)="formData.email" name="email" class="txt" required>
+    <input type="password" placeholder="Password" (ngModel)="formData.password" name="password" class="txt" required>
     <button type="submit" [disabled]="!formData.valid" class="basic-btn">Create my account</button>
   </form>
 </div>

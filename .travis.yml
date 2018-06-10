@@ -10,6 +10,7 @@ before_script:
   - npm install -g typescript@2.7.2
 script:
   - tsc
+  - mkdir ./public
   - cd ./battleship && npm run buildDeploy
 after_success:
   - firebase deploy --token $FIREBASE_TOKEN

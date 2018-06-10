@@ -2,18 +2,18 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 var functions = require("firebase-functions");
 var _boardSize = 7, _numShips = 3;
-exports.command = functions.database.ref('/commands/{uid}/{cmd_id}').onWrite(function (event) {
-    var uid = event.params.uid;
-    var cmd_id = event.params.cmd_id;
+exports.command = functions.database.ref('/commands/{uid}/{cmd_id}').onWrite(function (snapshot, context) {
+    var uid = context.params.uid;
+    var cmd_id = context.params.cmd_id;
     var bs = new BattleshipServer();
-    console.log("data: ", event.data);
-    if (!event.data.exists()) {
+    console.log("data: ", snapshot.after.val());
+    if (!snapshot.after.exists()) {
         return Promise.reject("command was deleted " + cmd_id);
     }
-    var command = event.data.val();
+    var command = snapshot.after.val();
     var cmd_name = command.command;
     console.log("command " + cmd_name + " uid=" + uid + " cmd_id=" + cmd_id);
-    var root = event.data.adminRef.root;
+    var root = snapshot.after.ref.root;
     var pr_cmd;
     switch (cmd_name) {
         case 'play':
@@ -30,10 +30,10 @@ exports.command = functions.database.ref('/commands/{uid}/{cmd_id}').onWrite(fun
             pr_cmd = Promise.reject("Unknown command");
             break;
     }
-    var pr_remove = event.data.adminRef.remove();
+    var pr_remove = snapshot.after.ref.remove();
     return Promise.all([pr_cmd, pr_remove]);
 });
-var BattleshipServer = (function () {
+var BattleshipServer = /** @class */ (function () {
     function BattleshipServer() {
     }
     /**
@@ -107,11 +107,11 @@ var BattleshipServer = (function () {
     BattleshipServer.prototype.generateShip = function () {
         var direction = Math.floor(Math.random() * 2);
         var row, col = 0;
-        if (direction === 1) {
+        if (direction === 1) { // horizontal
             row = Math.floor(Math.random() * _boardSize);
             col = Math.floor(Math.random() * (_boardSize - 3 + 1));
         }
-        else {
+        else { // vertical
             row = Math.floor(Math.random() * (_boardSize - 3 + 1));
             col = Math.floor(Math.random() * _boardSize);
         }
@@ -326,33 +326,33 @@ var BattleshipServer = (function () {
         if (game_state.outcome) {
             var outcome = game_state.outcome;
             if (outcome === 'win_p1') {
-                p1_message += "You won! Good job!";
-                p2_message += "They won! Better luck next time!";
+                p1_message = "You won! Good job!";
+                p2_message = "They won! Better luck next time!";
             }
             else if (outcome === 'win_p2') {
-                p1_message += "They won! Better luck next time!";
-                p2_message += "You won! Good job!";
+                p1_message = "They won! Better luck next time!";
+                p2_message = "You won! Good job!";
             }
             else if (outcome === 'tie') {
-                p1_message += p2_message = "It's a tie game!";
+                p1_message = p2_message = "It's a tie game!";
             }
             else if (outcome == 'forfeit_p1') {
-                p1_message += "Looks like you gave up.";
-                p2_message += "The other player has apparently quit, so you win!";
+                p1_message = "Looks like you gave up.";
+                p2_message = "The other player has apparently quit, so you win!";
             }
             else if (outcome == 'forfeit_p2') {
-                p1_message += "The other player has apparently quit, so you win!";
-                p2_message += "Looks like you gave up.";
+                p1_message = "The other player has apparently quit, so you win!";
+                p2_message = "Looks like you gave up.";
             }
         }
         else {
             if (game_state.turn === game_state.p1uid) {
-                p1_message += "It's your turn! Make a move!";
+                p1_message = "It's your turn! Make a move!";
                 p2_message += "Waiting for other player...";
             }
             else {
                 p1_message += "Waiting for other player...";
-                p2_message += "It's your turn! Make a move!";
+                p2_message = "It's your turn! Make a move!";
             }
         }
         if (p1_message && p2_message) {
@@ -377,13 +377,13 @@ var BattleshipServer = (function () {
     return BattleshipServer;
 }());
 exports.BattleshipServer = BattleshipServer;
-var Shoot = (function () {
+var Shoot = /** @class */ (function () {
     function Shoot() {
     }
     return Shoot;
 }());
 exports.Shoot = Shoot;
-var Game = (function () {
+var Game = /** @class */ (function () {
     function Game(_p1uid, _p2uid, _turn, _p1checkin, _p2checkin, _p1ships, _p2ships) {
         this.p1uid = _p1uid;
         this.p2uid = _p2uid;
@@ -396,7 +396,7 @@ var Game = (function () {
     return Game;
 }());
 exports.Game = Game;
-var Ship = (function () {
+var Ship = /** @class */ (function () {
     function Ship(_hits, _locations) {
         this.hits = _hits;
         this.locations = _locations;
@@ -404,7 +404,7 @@ var Ship = (function () {
     return Ship;
 }());
 exports.Ship = Ship;
-var PlayerState = (function () {
+var PlayerState = /** @class */ (function () {
     function PlayerState(_game, _message) {
         this.game = _game;
         this.message = _message;

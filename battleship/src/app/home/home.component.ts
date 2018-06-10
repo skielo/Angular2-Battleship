@@ -12,6 +12,7 @@ export class HomeComponent implements OnInit {
   gameState: AngularFireObject<any>;
   message: string;
   gameStarted: boolean = false;
+  waiting: boolean = false;
   gameId: any = "";
   
   constructor(private _db: DatabaseService) {
@@ -23,8 +24,13 @@ export class HomeComponent implements OnInit {
       if(snap.payload.exists()){
         if(snap.payload.val().message){
           this.message = snap.payload.val().message;
+          this.waiting = true;
           this.gameStarted = true; 
           this.gameId = snap.payload.val().game;
+        }
+        if(snap.payload.val().matching){
+          this.message = 'Waiting for another player';
+          this.waiting = true; 
         }
       }
     });

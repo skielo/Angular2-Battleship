@@ -1,9 +1,7 @@
 import { Injectable } from '@angular/core';
-import { Http, Response } from '@angular/http';
-import { Observable } from 'rxjs/Rx';
 import { AngularFireAuth } from "angularfire2/auth";
-import { AngularFireDatabase, AngularFireObject, AngularFireList, DatabaseQuery } from "angularfire2/database";
-import { Query } from '@angular/core/src/metadata/di';
+import { AngularFireDatabase, AngularFireObject, AngularFireList } from "angularfire2/database";
+
 
 @Injectable()
 export class DatabaseService {
@@ -43,11 +41,7 @@ export class DatabaseService {
 
     getBoard(uid: string, type: string) {
         return this._af.object('/battles/' + uid + '/' + type)
-                                .snapshotChanges()
-                                .catch((err: any) => {
-                                    console.log(err); // again, customize me please
-                                    return Promise.reject(err);
-                                });
+                                .valueChanges();
     }
 
     updateBattleByUid(uid: string, obj: Battle){
@@ -65,7 +59,7 @@ export class DatabaseService {
         return this._af.object(`player_states/${this._auth.auth.currentUser.uid}`);
     }
 
-    getLocalGame(game_id: string){
+    getLocalGame(game_id: string): AngularFireList<any>{
         return this._af.list(`games/${game_id}/${this._auth.auth.currentUser.uid}_attemps`);
     }
 

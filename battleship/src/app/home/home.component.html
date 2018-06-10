@@ -8,5 +8,5 @@
 <div>
   <p>{{message}}</p>
 </div>
-<button mat-button (click)="startGame()" *ngIf="!gameStarted">Play</button>
+<button mat-button (click)="startGame()" *ngIf="!waiting">Play</button>
 <app-battleship *ngIf="gameStarted"></app-battleship>

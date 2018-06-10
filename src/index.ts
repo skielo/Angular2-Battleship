@@ -3,19 +3,19 @@ import * as functions from "firebase-functions";
 const _boardSize = 7,
       _numShips = 3;
 
-export let command = functions.database.ref('/commands/{uid}/{cmd_id}').onWrite(event => {
-    const uid = event.params.uid
-    const cmd_id = event.params.cmd_id
+export let command = functions.database.ref('/commands/{uid}/{cmd_id}').onWrite((snapshot, context) => {
+    const uid = context.params.uid
+    const cmd_id = context.params.cmd_id
     let bs = new BattleshipServer()
-    console.log("data: ", event.data)
-    if (!event.data.exists()) {
+    console.log("data: ", snapshot.after.val())
+    if (!snapshot.after.exists()) {
         return Promise.reject(`command was deleted ${cmd_id}`)
     }
 
-    const command = event.data.val()
+    const command = snapshot.after.val()
     const cmd_name = command.command
     console.log(`command ${cmd_name} uid=${uid} cmd_id=${cmd_id}`)
-    const root = event.data.adminRef.root
+    const root = snapshot.after.ref.root
     let pr_cmd
     switch (cmd_name) {
         case 'play':
@@ -33,7 +33,7 @@ export let command = functions.database.ref('/commands/{uid}/{cmd_id}').onWrite(
             break
     }
 
-    const pr_remove = event.data.adminRef.remove()
+    const pr_remove = snapshot.after.ref.remove()
     return Promise.all([pr_cmd, pr_remove])
 })
 
@@ -261,16 +261,16 @@ export class BattleshipServer {
         if(ship){
             let index = pl_ships.indexOf(ship);
             pl_ships[index] = this.hitShip(position, ship);
-        if (pl_num == 1) {
-            game_state.p1ships = pl_ships;
-        }
-        else if (pl_num == 2) {
-            game_state.p2ships = pl_ships;
-        }
+            if (pl_num == 1) {
+                game_state.p1ships = pl_ships;
+            }
+            else if (pl_num == 2) {
+                game_state.p2ships = pl_ships;
+            }
         
-        if(this.isSunk(ship)){
-            game_state.message = "You sank my battleship!";
-        }
+            if(this.isSunk(ship)){
+                game_state.message = "You sank my battleship!";
+            }
             shoot.hasboat = true;
         }
         else {
@@ -351,33 +351,33 @@ export class BattleshipServer {
         if (game_state.outcome) {
             const outcome = game_state.outcome
             if (outcome === 'win_p1') {
-                p1_message += "You won! Good job!"
-                p2_message += "They won! Better luck next time!"
+                p1_message = "You won! Good job!"
+                p2_message = "They won! Better luck next time!"
             }
             else if (outcome === 'win_p2') {
-                p1_message += "They won! Better luck next time!"
-                p2_message += "You won! Good job!"
+                p1_message = "They won! Better luck next time!"
+                p2_message = "You won! Good job!"
             }
             else if (outcome === 'tie') {
-                p1_message += p2_message = "It's a tie game!"
+                p1_message = p2_message = "It's a tie game!"
             }
             else if (outcome == 'forfeit_p1') {
-                p1_message += "Looks like you gave up."
-                p2_message += "The other player has apparently quit, so you win!"
+                p1_message = "Looks like you gave up."
+                p2_message = "The other player has apparently quit, so you win!"
             }
             else if (outcome == 'forfeit_p2') {
-                p1_message += "The other player has apparently quit, so you win!"
-                p2_message += "Looks like you gave up."
+                p1_message = "The other player has apparently quit, so you win!"
+                p2_message = "Looks like you gave up."
             }
         }
         else {
             if (game_state.turn === game_state.p1uid) {
-                p1_message += "It's your turn! Make a move!"
+                p1_message = "It's your turn! Make a move!"
                 p2_message += "Waiting for other player..."
             }
             else {
                 p1_message += "Waiting for other player..."
-                p2_message += "It's your turn! Make a move!"
+                p2_message = "It's your turn! Make a move!"
             }
         }
         

@@ -1,6 +1,6 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { DatabaseService, Board, BoardItem, Boat } from "../core/database.service";
-import { AngularFireObject } from "angularfire2/database";
+import { AngularFireObject, DatabaseSnapshot } from "angularfire2/database";
 
 @Component({
   selector: 'app-battleship',
